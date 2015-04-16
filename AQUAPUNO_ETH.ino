@@ -1,32 +1,18 @@
+/* dimodif dari file */
 /* Web_Parms_1.pde - very simple Webduino example of parameter passing and parsing */
-
-/*
- * This is mostly a tool for testing and debugging the library, but can
- * also be used as an example of coding for it.
- *
- * To use it,  enter one of the following USLs into your browser.
- * Replace "host" with the IP address assigned to the Arduino.
- *
- * http://host/
- * http://host/index.html
- *
- * These return a "success" HTTP result and display the parameters
- * (if any) passed to them as a single string,  without attempting to
- * parse them.  This is done with a call to defaultCmd.
- * 
- * 
- * http://host/raw.html
- *
- * This is essentially the same as the index.html URL processing,
- * but is done by calling rawCmd.
- * 
- * 
- * http://host/parsed.html
- *
- * This invokes parsedCmd,  which displays the "raw" parameter string,
- * but also uses the "nexyURLparam" routine to parse out the individual
- * parameters, and display them.
- */
+/* bergantung pada library webduino https://github.com/sirleech/Webduino */
+/* AQUAPUNO_ETH 
+   Deskripsi
+   ---------
+   AQUAPUNO adalah system terpadu AQUAPONIK dibantu dengan microcontroller arduino.
+   menggunakan arduino UNO sebagai alat mengukur sensor dan menyalakan/mematikan relay
+   (alat elektronik) seperti pompa atau pengatur pupuk.
+ 
+  versi: 0.9
+  by   : Irza pulungan  
+  todo:
+  -json format when requested
+*/
 
 
 #define WEBDUINO_FAIL_MESSAGE "<h1>Request Failed</h1>"
@@ -83,12 +69,18 @@ P(Line_break) = "<br>\n";
  * of "", all pages will be at the root of the server. */
 #define PREFIX ""
 WebServer webserver(PREFIX, 80);
+
+/* mengatur timer Relay (pin, waktu nyala, waktu mati, deskripsi)
+   disini diatur dengan menggunakan milli time 3000 = 3 detik
+   waktu nyala dan waktu mati akan otomatis dihitung dari nyala
+   arduino
+*/
 RelayTimer Relay1(4, 3000, 4000, "Pompa Air");
 RelayTimer Relay2(5, 3000, 3500, "Oksigen ikan");
 RelayTimer Relay3(6, 3000, 5500, "Makan ikan");
 RelayTimer Relay4(7, 3000, 6500, "Pompa Pupuk");
-DHT dht(DHTPIN, DHTTYPE);
 
+DHT dht(DHTPIN, DHTTYPE);
 
 char * floatToString(char * outstr, double val, byte precision, byte widthp){
  char temp[16];
