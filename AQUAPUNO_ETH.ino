@@ -273,46 +273,6 @@ void parsedCmd(WebServer &server, WebServer::ConnectionType type, char *url_tail
         if (ckname == "RLY2"){Relay2.TurnOn();server.print("2 ON");}
         if (ckname == "RLY3"){Relay3.TurnOn();server.print("3 ON");}
         if (ckname == "RLY4"){Relay4.TurnOn();server.print("4 ON");}
-        if (ckname == "GETINFO"){
-            float h = dht.readHumidity();
-            float t = dht.readTemperature();
-
-            if (isnan(t) || isnan(h)) 
-                {
-                    h = 1;
-                    t = 1;
-                } 
-
-            int lhtval = analogRead(LHTPIN);
-            //lhtval = int(lhtval / 10);
-
-            char bbuffer[5];
-
-            String mydt = "MYDT";
-            String data1 = "ARD1";
-            
-            char test[20];
-
-            String data2 = String(floatToString(test,t,2,4)); //temperature
-            String data3 = String(floatToString(test,h,2,4)); //humidity
-            String data4 = String(lhtval); //light
-            String data5 = String(random(0,5)); //flow1
-            String data6 = String(random(6,10)); //flow2
-            String data7 = String(Relay1.State()*5); //relay1
-            String data8 = String(Relay2.State()*10); //relay2
-            String data9 = String(Relay3.State()*15); //relay3
-            String data10 = String(Relay4.State()*20); //relay4
-            String data11 = String(analogRead(A1));
-            String data12 = String(analogRead(A2));
-            String data13 = String(analogRead(A3));
-            String data14 = String(analogRead(A4));
-            String delim = ":";
-            String retrn = "\r\n";
-            String myold = mydt + delim + data1 + delim + data2 + delim + data3 + delim + data4 + delim + data5 + delim + data6 + delim + data7 + delim + data8 + delim + data9 + delim + data10 + delim + data11 + delim + data12 + delim + data13 + delim + data14 +delim + retrn;
-            char mydata[70] = "";
- 
-            server.print(myold);
-          }
         
         }
       }
@@ -331,6 +291,68 @@ void parsedCmd(WebServer &server, WebServer::ConnectionType type, char *url_tail
   server.printP(Page_end);
 
 }
+
+
+void getInfo(WebServer &server, WebServer::ConnectionType type, char *url_tail, bool tail_complete)
+{
+  URLPARAM_RESULT rc;
+  char name[NAMELEN];
+  int  name_len;
+  char value[VALUELEN];
+  int value_len;
+
+  /* this line sends the standard "we're all OK" headers back to the
+     browser */
+  server.httpSuccess();
+
+  /* if we're handling a GET or POST, we can output our data here.
+     For a HEAD request, we just stop after outputting headers. */
+  if (type == WebServer::HEAD)
+    return;
+
+
+        
+        String ckname = name;
+        String ckvalue = value;
+            float h = dht.readHumidity();
+            float t = dht.readTemperature();
+
+            if (isnan(t) || isnan(h)) 
+                {
+                    h = 1;
+                    t = 1;
+                } 
+
+            int lhtval = analogRead(LHTPIN);
+            //lhtval = int(lhtval / 10);
+
+            char bbuffer[5];
+
+            String data1 = "ARD1";
+            char test[20];
+
+            String myold = "{ \"MYDT\" : [ { \"device_name\" : \"" + data1 + "\"}, ";
+            myold = myold + "{ \"sensor\" : \"temperature\" , \"value\" : \"" + String(floatToString(test,t,2,4)) + "\"},";
+            myold = myold + "{ \"sensor\" : \"humidity\" , \"value\" : \"" + String(floatToString(test,h,2,4)) + "\"},";
+            myold = myold + "{ \"sensor\" : \"light\" , \"value\" : \"" + String(lhtval) + "\"},";
+            myold = myold + "{ \"sensor\" : \"flow1\" , \"value\" : \"" + String(random(0,5)) + "\"},";
+            myold = myold + "{ \"sensor\" : \"flow2\" , \"value\" : \"" + String(random(6,10)) + "\"},";
+            myold = myold + "{ \"sensor\" : \"relay1_state\" , \"value\" : \"" + String(Relay1.State()*5) +  "\", \"description\" : \"" + Relay1.Desc() + "\"},";
+            myold = myold + "{ \"sensor\" : \"relay2_state\" , \"value\" : \"" + String(Relay2.State()*10) + "\", \"description\" : \"" + Relay2.Desc() + "\"},";
+            myold = myold + "{ \"sensor\" : \"relay3_state\" , \"value\" : \"" + String(Relay3.State()*15) + "\", \"description\" : \"" + Relay3.Desc() + "\"},";
+            myold = myold + "{ \"sensor\" : \"relay4_state\" , \"value\" : \"" + String(Relay4.State()*20) + "\", \"description\" : \"" + Relay4.Desc() + "\"},";
+            myold = myold + "{ \"sensor\" : \"analog1\" , \"value\" : \"" + String(analogRead(A1)) + "\"},";
+            myold = myold + "{ \"sensor\" : \"analog2\" , \"value\" : \"" + String(analogRead(A2)) + "\"},";
+            myold = myold + "{ \"sensor\" : \"analog3\" , \"value\" : \"" + String(analogRead(A3)) + "\"},";
+            myold = myold + "{ \"sensor\" : \"analog4\" , \"value\" : \"" + String(analogRead(A4)) + "\"} ] }";
+
+            server.print(myold);
+        
+        
+
+
+}
+
 
 void my_failCmd(WebServer &server, WebServer::ConnectionType type, char *url_tail, bool tail_complete)
 {
@@ -387,7 +409,7 @@ void setup()
   /*This command  is called if you try to load /raw.html */
   webserver.addCommand("raw.html", &rawCmd);
   webserver.addCommand("parsed.html", &parsedCmd);
-
+  webserver.addCommand("getinfo.html", &getInfo);
   /* start the webserver */
   webserver.begin();
 }
