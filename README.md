@@ -47,6 +47,10 @@ Timer otomatis relay dan deskripsi
 contoh Query ke arduino
 -----------------------
 
-http://host/parsedCmd?RLY1=ON
+http://host/getinfo.html
 http://host/parsedCmd?GETINFO=1
+http://host/relay1.html?ON=5000&OFF=4000            
+http://host/relay1.html?SET_ON=1
+http://host/relay1.html?SET_OFF=1
+
 

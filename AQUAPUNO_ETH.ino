@@ -75,10 +75,10 @@ WebServer webserver(PREFIX, 80);
    waktu nyala dan waktu mati akan otomatis dihitung dari nyala
    arduino
 */
-RelayTimer Relay1(4, 3000, 4000, "Pompa Air");
-RelayTimer Relay2(5, 3000, 3500, "Oksigen ikan");
-RelayTimer Relay3(6, 3000, 5500, "Makan ikan");
-RelayTimer Relay4(7, 3000, 6500, "Pompa Pupuk");
+RelayTimer Relay1(4, 0, 400000, "Pompa Air");
+RelayTimer Relay2(5, 0, 350000, "Oksigen ikan");
+RelayTimer Relay3(6, 0, 550000, "Makan ikan");
+RelayTimer Relay4(7, 0, 650000, "Pompa Pupuk");
 
 DHT dht(DHTPIN, DHTTYPE);
 
@@ -337,20 +337,236 @@ void getInfo(WebServer &server, WebServer::ConnectionType type, char *url_tail, 
             myold = myold + "{ \"sensor\" : \"light\" , \"value\" : \"" + String(lhtval) + "\"},";
             myold = myold + "{ \"sensor\" : \"flow1\" , \"value\" : \"" + String(random(0,5)) + "\"},";
             myold = myold + "{ \"sensor\" : \"flow2\" , \"value\" : \"" + String(random(6,10)) + "\"},";
-            myold = myold + "{ \"sensor\" : \"relay1_state\" , \"value\" : \"" + String(Relay1.State()*5) +  "\", \"description\" : \"" + Relay1.Desc() + "\"},";
-            myold = myold + "{ \"sensor\" : \"relay2_state\" , \"value\" : \"" + String(Relay2.State()*10) + "\", \"description\" : \"" + Relay2.Desc() + "\"},";
-            myold = myold + "{ \"sensor\" : \"relay3_state\" , \"value\" : \"" + String(Relay3.State()*15) + "\", \"description\" : \"" + Relay3.Desc() + "\"},";
-            myold = myold + "{ \"sensor\" : \"relay4_state\" , \"value\" : \"" + String(Relay4.State()*20) + "\", \"description\" : \"" + Relay4.Desc() + "\"},";
+            myold = myold + "{ \"sensor\" : \"relay1_state\" , \"value\" : \"" + String(Relay1.State()*5) +  "\", \"description\" : \"" + Relay1.Desc() + "\", \"OnTime\" : \"" + Relay1.getOn() + "\", \"OffTime\" : \"" + Relay1.getOff() + "\" },";
+            myold = myold + "{ \"sensor\" : \"relay2_state\" , \"value\" : \"" + String(Relay2.State()*10) + "\", \"description\" : \"" + Relay2.Desc() + "\", \"OnTime\" : \"" + Relay2.getOn() + "\", \"OffTime\" : \"" + Relay2.getOff() + "\" },";
+            myold = myold + "{ \"sensor\" : \"relay3_state\" , \"value\" : \"" + String(Relay3.State()*15) + "\", \"description\" : \"" + Relay3.Desc() + "\", \"OnTime\" : \"" + Relay3.getOn() + "\", \"OffTime\" : \"" + Relay3.getOff() + "\" },";
+            myold = myold + "{ \"sensor\" : \"relay4_state\" , \"value\" : \"" + String(Relay4.State()*20) + "\", \"description\" : \"" + Relay4.Desc() + "\", \"OnTime\" : \"" + Relay4.getOn() + "\", \"OffTime\" : \"" + Relay4.getOff() + "\" },";
             myold = myold + "{ \"sensor\" : \"analog1\" , \"value\" : \"" + String(analogRead(A1)) + "\"},";
             myold = myold + "{ \"sensor\" : \"analog2\" , \"value\" : \"" + String(analogRead(A2)) + "\"},";
             myold = myold + "{ \"sensor\" : \"analog3\" , \"value\" : \"" + String(analogRead(A3)) + "\"},";
             myold = myold + "{ \"sensor\" : \"analog4\" , \"value\" : \"" + String(analogRead(A4)) + "\"} ] }";
 
             server.print(myold);
-        
-        
+}
 
 
+void relay1(WebServer &server, WebServer::ConnectionType type, char *url_tail, bool tail_complete)
+{
+  URLPARAM_RESULT rc;
+  char name[NAMELEN];
+  int  name_len;
+  char value[VALUELEN];
+  int value_len;
+
+  /* this line sends the standard "we're all OK" headers back to the
+     browser */
+  server.httpSuccess();
+
+  /* if we're handling a GET or POST, we can output our data here.
+     For a HEAD request, we just stop after outputting headers. */
+  if (type == WebServer::HEAD)
+    return;
+
+  server.printP(Page_start);
+
+
+  if (strlen(url_tail))
+    {
+    server.printP(Parsed_tail_begin);
+    while (strlen(url_tail))
+      {
+      rc = server.nextURLparam(&url_tail, name, NAMELEN, value, VALUELEN);
+      if (rc == URLPARAM_EOS)
+        server.printP(Params_end);
+       else
+        {
+        server.print(name);
+        server.printP(Parsed_item_separator);
+        server.print(value);
+        server.printP(Tail_end);
+        String ckname = name;
+        String ckvalue = value;
+        if (ckname == "ON"){
+           Relay1.setOn(atol(value));
+         }
+        if (ckname == "OFF"){
+           Relay1.setOff(atol(value));
+         }
+        if (ckname == "SET_ON"){
+           Relay1.TurnOn();
+         }
+        if (ckname == "SET_OFF"){
+           Relay1.TurnOff();
+         }
+
+       }
+      }
+    }
+  server.printP(Page_end);
+}
+
+
+void relay2(WebServer &server, WebServer::ConnectionType type, char *url_tail, bool tail_complete)
+{
+  URLPARAM_RESULT rc;
+  char name[NAMELEN];
+  int  name_len;
+  char value[VALUELEN];
+  int value_len;
+
+  /* this line sends the standard "we're all OK" headers back to the
+     browser */
+  server.httpSuccess();
+
+  /* if we're handling a GET or POST, we can output our data here.
+     For a HEAD request, we just stop after outputting headers. */
+  if (type == WebServer::HEAD)
+    return;
+
+  server.printP(Page_start);
+
+
+  if (strlen(url_tail))
+    {
+    server.printP(Parsed_tail_begin);
+    while (strlen(url_tail))
+      {
+      rc = server.nextURLparam(&url_tail, name, NAMELEN, value, VALUELEN);
+      if (rc == URLPARAM_EOS)
+        server.printP(Params_end);
+       else
+        {
+        server.print(name);
+        server.printP(Parsed_item_separator);
+        server.print(value);
+        server.printP(Tail_end);
+        String ckname = name;
+        String ckvalue = value;
+        if (ckname == "ON"){
+           Relay2.setOn(atol(value));
+         }
+        if (ckname == "OFF"){
+           Relay2.setOff(atol(value));
+         }
+        if (ckname == "SET_ON"){
+           Relay2.TurnOn();
+         }
+        if (ckname == "SET_OFF"){
+           Relay2.TurnOff();
+         }
+
+       }
+      }
+    }
+  server.printP(Page_end);
+}
+
+void relay3(WebServer &server, WebServer::ConnectionType type, char *url_tail, bool tail_complete)
+{
+  URLPARAM_RESULT rc;
+  char name[NAMELEN];
+  int  name_len;
+  char value[VALUELEN];
+  int value_len;
+
+  /* this line sends the standard "we're all OK" headers back to the
+     browser */
+  server.httpSuccess();
+
+  /* if we're handling a GET or POST, we can output our data here.
+     For a HEAD request, we just stop after outputting headers. */
+  if (type == WebServer::HEAD)
+    return;
+
+  server.printP(Page_start);
+
+
+  if (strlen(url_tail))
+    {
+    server.printP(Parsed_tail_begin);
+    while (strlen(url_tail))
+      {
+      rc = server.nextURLparam(&url_tail, name, NAMELEN, value, VALUELEN);
+      if (rc == URLPARAM_EOS)
+        server.printP(Params_end);
+       else
+        {
+        server.print(name);
+        server.printP(Parsed_item_separator);
+        server.print(value);
+        server.printP(Tail_end);
+        String ckname = name;
+        String ckvalue = value;
+        if (ckname == "ON"){
+           Relay3.setOn(atol(value));
+         }
+        if (ckname == "OFF"){
+           Relay3.setOff(atol(value));
+         }
+        if (ckname == "SET_ON"){
+           Relay3.TurnOn();
+         }
+        if (ckname == "SET_OFF"){
+           Relay3.TurnOff();
+         }
+       }
+      }
+    }
+  server.printP(Page_end);
+}
+
+void relay4(WebServer &server, WebServer::ConnectionType type, char *url_tail, bool tail_complete)
+{
+  URLPARAM_RESULT rc;
+  char name[NAMELEN];
+  int  name_len;
+  char value[VALUELEN];
+  int value_len;
+
+  /* this line sends the standard "we're all OK" headers back to the
+     browser */
+  server.httpSuccess();
+
+  /* if we're handling a GET or POST, we can output our data here.
+     For a HEAD request, we just stop after outputting headers. */
+  if (type == WebServer::HEAD)
+    return;
+
+  server.printP(Page_start);
+
+
+  if (strlen(url_tail))
+    {
+    server.printP(Parsed_tail_begin);
+    while (strlen(url_tail))
+      {
+      rc = server.nextURLparam(&url_tail, name, NAMELEN, value, VALUELEN);
+      if (rc == URLPARAM_EOS)
+        server.printP(Params_end);
+       else
+        {
+        server.print(name);
+        server.printP(Parsed_item_separator);
+        server.print(value);
+        server.printP(Tail_end);
+        String ckname = name;
+        String ckvalue = value;
+        if (ckname == "ON"){
+           Relay4.setOn(atol(value));
+         }
+        if (ckname == "OFF"){
+           Relay4.setOff(atol(value));
+         }
+        if (ckname == "SET_ON"){
+           Relay4.TurnOn();
+         }
+        if (ckname == "SET_OFF"){
+           Relay4.TurnOff();
+         }
+       }
+      }
+    }
+  server.printP(Page_end);
 }
 
 
@@ -410,6 +626,11 @@ void setup()
   webserver.addCommand("raw.html", &rawCmd);
   webserver.addCommand("parsed.html", &parsedCmd);
   webserver.addCommand("getinfo.html", &getInfo);
+  webserver.addCommand("relay1.html", &relay1);
+  webserver.addCommand("relay2.html", &relay2);
+  webserver.addCommand("relay3.html", &relay3);
+  webserver.addCommand("relay4.html", &relay4);
+ 
   /* start the webserver */
   webserver.begin();
 }

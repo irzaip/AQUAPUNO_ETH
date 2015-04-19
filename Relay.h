@@ -29,6 +29,10 @@ class RelayTimer
   void TurnOn(){
     digitalWrite(RelayPin, HIGH);
    }
+
+  void TurnOff(){
+    digitalWrite(RelayPin, LOW);
+   }
   
   int State(){
     if (RelayState == HIGH){
@@ -39,6 +43,22 @@ class RelayTimer
   
   String Desc(){
     return RelayDescr;
+  }
+
+  long getOn(){
+    return OnTime;
+  }
+
+  long getOff(){
+    return OffTime;
+  }
+
+  void setOn(long on){
+    OnTime = on;
+  }
+  
+  void setOff(long off){
+    OffTime = off;
   }
   
   void Update()
